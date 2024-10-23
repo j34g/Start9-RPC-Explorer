@@ -1,0 +1,119 @@
+id: btc-rpc-explorer
+title: "BTC RPC Explorer"
+version: 1.0.0
+release-notes: |
+  * Initial release of BTC RPC Explorer with Bitcoin Core dependency
+license: MIT
+wrapper-repo: "https://github.com/j34g/Start9-RPC-Explorer"  # Update with your repo
+upstream-repo: "https://github.com/janoside/btc-rpc-explorer"
+support-site: "https://github.com/janoside/btc-rpc-explorer/issues"
+marketing-site: "bitcoinexplorer.org"  # Update if applicable
+build: ["make"]
+description:
+  short: BTC RPC Explorer - A web-based Bitcoin RPC explorer
+  long: |
+    BTC RPC Explorer is a web-based application that allows users to explore the state of a Bitcoin node via its RPC interface.
+assets:
+  license: LICENSE
+  icon: icon.png
+  instructions: instructions.md
+main:
+  type: docker
+  image: main
+  entrypoint: "docker_entrypoint.sh"
+  args: []
+  mounts:
+    main: /btc-rpc-explorer-data  # Update to appropriate mount point
+  gpu-acceleration: false
+hardware-requirements:
+  arch:
+    - x86_64
+    - aarch64
+health-checks:
+  web-ui:
+    name: BTC RPC Explorer User Interface
+    success-message: Ready to be visited in a web browser
+    type: script
+config:
+  get:
+    type: script
+  set:
+    type: script
+properties: ~
+volumes:
+  main:
+    type: data
+interfaces:
+  main:
+    name: User Interface
+    description: BTC RPC Explorer Web user interface
+    tor-config:
+      port-mapping:
+        3000: "3000"  # Adjust the port if needed
+    lan-config:
+      3000:
+        ssl: false  # Adjust if SSL is configured
+        internal: 3000
+    ui: true
+    protocols:
+      - tcp
+      - http
+dependencies:
+  bitcoind:
+    version: ">=26.0.0 <29.0.0"
+    requirement:
+      type: "opt-in"
+      how: "Use built-in Bitcoin Core (mainnet)"
+    description: Used to subscribe to new block events.
+    config:
+      check:
+        type: script
+      auto-configure:
+        type: script
+  bitcoind-testnet:
+    version: ">=26.0.0 <29.0.0"
+    requirement:
+      type: "opt-in"
+      how: "Use built-in Bitcoin Core (testnet4)"
+    description: Used to subscribe to new block events.
+    config:
+      check:
+        type: script
+      auto-configure:
+        type: script
+backup:
+  create:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: compat
+    args:
+      - duplicity
+      - create
+      - /mnt/backup
+      - /btc-rpc-explorer-data  # Update to appropriate mount point
+    mounts:
+      BACKUP: /mnt/backup
+      main: /btc-rpc-explorer-data  # Update to appropriate mount point
+  restore:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: compat
+    args:
+      - duplicity
+      - restore
+      - /mnt/backup
+      - /btc-rpc-explorer-data  # Update to appropriate mount point
+    mounts:
+      BACKUP: /mnt/backup
+      main: /btc-rpc-explorer-data  # Update to appropriate mount point
+migrations:
+  from:
+    "*":
+      type: script
+      args: ["from"]
+  to:
+    "*":
+      type: script
+      args: ["to"]
