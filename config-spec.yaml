@@ -1,0 +1,59 @@
+# config-spec.yaml
+bitcoind:
+    type: union
+    name: Bitcoin Core
+    description: The Bitcoin Core node to connect to
+    tag:
+        id: type
+        name: Type
+        description: |
+            - Internal: The Bitcoin Core service installed on your server
+            - External: A Bitcoin Core node running on a different device
+            - Quick Connect: A Quick Connect URL for an unpruned Bitcoin Core node
+        variant-names:
+            internal: Internal
+            external: External
+            quick-connect: Quick Connect
+    default: internal
+    variants:
+        internal:
+            user:
+                type: pointer
+                name: RPC Username
+                description: The username for the RPC user for Bitcoin Core
+                subtype: app
+                app-id: bitcoind
+                target: config
+                selector: "rpc.username"
+            password:
+                type: pointer
+                name: RPC Password
+                description: The password for the RPC user for Bitcoin Core
+                subtype: app
+                app-id: bitcoind
+                target: config
+                selector: "rpc.password"
+        external:
+            addressext:
+                type: string
+                name: Public Address
+                description: The public address of your Bitcoin Core RPC server
+                nullable: false
+            userext:
+                type: string
+                name: RPC Username
+                description: The username for the RPC user on your Bitcoin Core RPC server
+                nullable: false
+            passwordext:
+                type: string
+                name: RPC Password
+                description: The password for the RPC user on your Bitcoin Core RPC server
+                nullable: false
+        quick-connect:
+            quick-connect-url:
+                type: string
+                name: Quick Connect URL
+                description: The Quick Connect URL for your Bitcoin Core RPC server
+                nullable: false
+                pattern: 'btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\?(label=.+)?)?)?'
+                patternDescription: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
